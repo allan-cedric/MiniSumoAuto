@@ -50,8 +50,8 @@ uint8_t last_vel_MotorL = 0;
 uint8_t last_vel_MotorR = 0;
 
 // Variáveis globais para o sensor
-uint8_t last_detect_distL = 1;
-uint8_t last_detect_distR = 1;
+uint8_t last_detect_distL = 0;
+uint8_t last_detect_distR = 0;
 
 // Checa as linha branca do Dohyo
 #define LINE_DELAY 200
