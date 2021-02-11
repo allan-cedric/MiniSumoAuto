@@ -1,4 +1,4 @@
-//#include <Arduino.h>
+#include <Arduino.h>
 
 /*******PINOUT DEFINES*********/
 // it is not recommended to make changes
@@ -235,6 +235,9 @@ void check_lines()
       MotorL(0);
       MotorR(MAX_VEL - 10);
       delay(LINE_DELAY / 2);
+
+      last_vel_MotorL = 0;
+      last_vel_MotorR = MAX_VEL - 10;
     }
     else
     {
@@ -247,6 +250,9 @@ void check_lines()
       MotorL(MAX_VEL - 10);
       MotorR(0);
       delay(LINE_DELAY / 4);
+
+      last_vel_MotorL = MAX_VEL - 10;
+      last_vel_MotorR = 0;
     }
   }
   else if (lineR_value < WHITE_LINE)
@@ -260,6 +266,9 @@ void check_lines()
     MotorL(0);
     MotorR(MAX_VEL - 10);
     delay(LINE_DELAY / 4);
+
+    last_vel_MotorL = 0;
+    last_vel_MotorR = MAX_VEL - 10;
   }
 }
 
