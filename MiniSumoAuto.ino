@@ -233,15 +233,12 @@ void check_lines()
     delay(LINE_DELAY >> (detect_lineL ^ detect_lineR));
 
     // Gira por um certo tempo
-    if (detect_lineL && detect_lineR)
-      MotorL(0);
-    else
-      MotorL(vel_MotorL * detect_lineL);
+    MotorL(vel_MotorL * !detect_lineR);
     MotorR(vel_MotorR * detect_lineR);
-    delay(LINE_DELAY >> ((detect_lineL ^ detect_lineR) + 1));
+    delay(LINE_DELAY >> ((detect_lineL ^ detect_lineR) * 2));
 
     last_vel_MotorL = vel_MotorL;
-    last_vel_MotorR = vel_MotorR;   
+    last_vel_MotorR = vel_MotorR;
   }
 }
 
@@ -260,8 +257,8 @@ void strat_0()
   }
 
   // Velocidade apropriada para o motor
-  int vel_MotorL = ((MAX_VEL >> (detect_disL ^ detect_disR)*detect_disL) + (10 * detect_disL * detect_disR));
-  int vel_MotorR = ((MAX_VEL >> (detect_disL ^ detect_disR)*detect_disR) + (10 * detect_disL * detect_disR));
+  int vel_MotorL = ((MAX_VEL >> (detect_disL ^ detect_disR) * detect_disL) + (10 * detect_disL * detect_disR));
+  int vel_MotorR = ((MAX_VEL >> (detect_disL ^ detect_disR) * detect_disR) + (10 * detect_disL * detect_disR));
 
   if (last_vel_MotorL != vel_MotorL)
     MotorL(vel_MotorL);
