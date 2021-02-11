@@ -50,8 +50,8 @@ int last_vel_MotorL = 0;
 int last_vel_MotorR = 0;
 
 // Variáveis globais para o sensor
-int last_detect_distL = 0;
-int last_detect_distR = 0;
+int last_detect_distL = 1;
+int last_detect_distR = 1;
 
 // Checa as linha branca do Dohyo
 #define LINE_DELAY 200
@@ -222,23 +222,53 @@ void check_lines()
   int detect_lineL = (analogRead(lineL) < WHITE_LINE);
   int detect_lineR = (analogRead(lineR) < WHITE_LINE);
 
-  if (detect_lineL || detect_lineR)
+  if (detect_lineL)
   {
-    int vel_MotorL = MAX_VEL - 10;
-    int vel_MotorR = MAX_VEL - 10;
+    if (detect_lineR)
+    {
+      // Vai para trás por um certo tempo
+      MotorL(-(MAX_VEL - 10));
+      MotorR(-(MAX_VEL - 10));
+      delay(LINE_DELAY);
 
+      // Gira por um certo tempo
+      MotorL(0);
+      MotorR(MAX_VEL - 10);
+      delay(LINE_DELAY / 2);
+
+      last_vel_MotorL = 0;
+      last_vel_MotorR = MAX_VEL - 10;
+    }
+    else
+    {
+      // Vai para trás por um certo tempo
+      MotorL(-(MAX_VEL - 10));
+      MotorR(-(MAX_VEL - 10));
+      delay(LINE_DELAY / 2);
+
+      // Gira por um certo tempo
+      MotorL(MAX_VEL - 10);
+      MotorR(0);
+      delay(LINE_DELAY / 4);
+
+      last_vel_MotorL = MAX_VEL - 10;
+      last_vel_MotorR = 0;
+    }
+  }
+  else if (detect_lineR)
+  {
     // Vai para trás por um certo tempo
-    MotorL(-vel_MotorL);
-    MotorR(-vel_MotorR);
-    delay(LINE_DELAY >> (detect_lineL ^ detect_lineR));
+    MotorL(-(MAX_VEL - 10));
+    MotorR(-(MAX_VEL - 10));
+    delay(LINE_DELAY / 2);
 
     // Gira por um certo tempo
-    MotorL(vel_MotorL * !detect_lineR);
-    MotorR(vel_MotorR * detect_lineR);
-    delay(LINE_DELAY >> ((detect_lineL ^ detect_lineR) * 2));
+    MotorL(0);
+    MotorR(MAX_VEL - 10);
+    delay(LINE_DELAY / 4);
 
-    last_vel_MotorL = vel_MotorL;
-    last_vel_MotorR = vel_MotorR;
+    last_vel_MotorL = 0;
+    last_vel_MotorR = MAX_VEL - 10;
   }
 }
 
@@ -247,18 +277,41 @@ void strat_0()
   check_lines();
 
   // Leitura do sensor
-  int detect_disL = digitalRead(distL);
-  int detect_disR = digitalRead(distR);
+  int distL_value = digitalRead(distL);
+  int distR_value = digitalRead(distR);
 
-  if (!detect_disL && !detect_disR)
+  if (!distL_value && !distR_value)
   {
-    detect_disL = last_detect_distL;
-    detect_disR = last_detect_distR;
+    distL_value = last_detect_distL;
+    distR_value = last_detect_distR;
   }
 
-  // Velocidade apropriada para o motor
-  int vel_MotorL = ((MAX_VEL >> (detect_disL ^ detect_disR) * detect_disL) + (10 * detect_disL * detect_disR));
-  int vel_MotorR = ((MAX_VEL >> (detect_disL ^ detect_disR) * detect_disR) + (10 * detect_disL * detect_disR));
+  // Armazena a velocidade apropriada para o motores
+  int vel_MotorL, vel_MotorR;
+
+  if (distL_value)
+  {
+    if (distR_value)
+    {
+      vel_MotorL = MAX_VEL + 10;
+      vel_MotorR = MAX_VEL + 10;
+    }
+    else
+    {
+      vel_MotorL = MAX_VEL / 2;
+      vel_MotorR = MAX_VEL;
+    }
+  }
+  else if (distR_value)
+  {
+    vel_MotorL = MAX_VEL;
+    vel_MotorR = MAX_VEL / 2;
+  }
+  else
+  {
+    vel_MotorL = MAX_VEL - 10;
+    vel_MotorR = MAX_VEL - 10;
+  }
 
   if (last_vel_MotorL != vel_MotorL)
     MotorL(vel_MotorL);
@@ -271,8 +324,8 @@ void strat_0()
   last_vel_MotorR = vel_MotorR;
 
   // Última detecção
-  last_detect_distL = detect_disL;
-  last_detect_distR = detect_disR;
+  last_detect_distL = distL_value;
+  last_detect_distR = distR_value;
 }
 
 void strat_1()
