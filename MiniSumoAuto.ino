@@ -46,12 +46,12 @@ int readDIP();        // read DIP switch / ler chave DIP / leer el interruptor D
 #define MAX_VEL 200
 
 // Variáveis globais para velocidades
-uint8_t last_vel_MotorL = 0;
-uint8_t last_vel_MotorR = 0;
+int last_vel_MotorL = 0;
+int last_vel_MotorR = 0;
 
 // Variáveis globais para o sensor
-uint8_t last_detect_distL = 0;
-uint8_t last_detect_distR = 0;
+int last_detect_distL = 0;
+int last_detect_distR = 0;
 
 // Checa as linha branca do Dohyo
 #define LINE_DELAY 200
@@ -110,7 +110,7 @@ void loop()
 {
   if (digitalRead(microST))
   {
-    uint8_t strat = readDIP();
+    int strat = readDIP();
     switch (strat)
     {
     case 0:
@@ -219,56 +219,29 @@ int readDIP()
 
 void check_lines()
 {
-  int lineL_value = analogRead(lineL);
-  int lineR_value = analogRead(lineR);
+  int detect_lineL = (analogRead(lineL) < WHITE_LINE);
+  int detect_lineR = (analogRead(lineR) < WHITE_LINE);
 
-  if (lineL_value < WHITE_LINE)
+  if (detect_lineL || detect_lineR)
   {
-    if (lineR_value < WHITE_LINE)
-    {
-      // Vai para trás por um certo tempo
-      MotorL(-(MAX_VEL) + 10);
-      MotorR(-(MAX_VEL) + 10);
-      delay(LINE_DELAY);
+    int vel_MotorL = MAX_VEL - 10;
+    int vel_MotorR = MAX_VEL - 10;
 
-      // Vai para esquerda por um certo tempo (convenção)
-      MotorL(0);
-      MotorR(MAX_VEL - 10);
-      delay(LINE_DELAY / 2);
-
-      last_vel_MotorL = 0;
-      last_vel_MotorR = MAX_VEL - 10;
-    }
-    else
-    {
-      // Vai para trás por um certo tempo
-      MotorL(-(MAX_VEL) + 10);
-      MotorR(-(MAX_VEL) + 10);
-      delay(LINE_DELAY / 2);
-
-      // Vai para direita por um certo tempo
-      MotorL(MAX_VEL - 10);
-      MotorR(0);
-      delay(LINE_DELAY / 4);
-
-      last_vel_MotorL = MAX_VEL - 10;
-      last_vel_MotorR = 0;
-    }
-  }
-  else if (lineR_value < WHITE_LINE)
-  {
     // Vai para trás por um certo tempo
-    MotorL(-(MAX_VEL) + 10);
-    MotorR(-(MAX_VEL) + 10);
-    delay(LINE_DELAY / 2);
+    MotorL(-vel_MotorL);
+    MotorR(-vel_MotorR);
+    delay(LINE_DELAY >> abs(detect_lineL - detect_lineR));
 
-    // Vai para esquerda por um certo tempo
-    MotorL(0);
-    MotorR(MAX_VEL - 10);
-    delay(LINE_DELAY / 4);
+    // Gira por um certo tempo
+    if (detect_lineL && detect_lineR)
+      MotorL(0);
+    else
+      MotorL(vel_MotorL * detect_lineL);
+    MotorR(vel_MotorR * detect_lineR);
+    delay(LINE_DELAY >> (abs(detect_lineL - detect_lineR) + 1));
 
-    last_vel_MotorL = 0;
-    last_vel_MotorR = MAX_VEL - 10;
+    last_vel_MotorL = vel_MotorL;
+    last_detect_distR = vel_MotorR;   
   }
 }
 
@@ -276,56 +249,29 @@ void strat_0()
 {
   check_lines();
 
-  uint8_t distL_value = digitalRead(distL);
-  uint8_t distR_value = digitalRead(distR);
+  // Leitura do sensor
+  int distL_value = digitalRead(distL);
+  int distR_value = digitalRead(distR);
 
-  if (distL_value || last_detect_distL)
+  if (!distL_value && !distR_value)
   {
-    if (distR_value || last_detect_distR)
-    {
-      // Vai para frente
-      if (last_vel_MotorL != (MAX_VEL + 10))
-        MotorL(MAX_VEL + 10);
-      if (last_vel_MotorR != (MAX_VEL + 10))
-        MotorR(MAX_VEL + 10);
-
-      last_vel_MotorL = MAX_VEL + 10;
-      last_vel_MotorR = MAX_VEL + 10;
-    }
-    else
-    {
-      // Vai para esquerda
-      if (last_vel_MotorL != MAX_VEL / 2)
-        MotorL(MAX_VEL / 2);
-      if (last_vel_MotorR != MAX_VEL)
-        MotorR(MAX_VEL);
-
-      last_vel_MotorL = MAX_VEL / 2;
-      last_vel_MotorR = MAX_VEL;
-    }
+    distL_value = last_detect_distL;
+    distR_value = last_detect_distR;
   }
-  else if (distR_value || last_detect_distR)
-  {
-    // Vai para direita
-    if (last_vel_MotorL != MAX_VEL)
-      MotorL(MAX_VEL);
-    if (last_vel_MotorR != MAX_VEL / 2)
-      MotorR(MAX_VEL / 2);
 
-    last_vel_MotorL = MAX_VEL;
-    last_vel_MotorR = MAX_VEL / 2;
-  }
-  else
-  {
-    // Vai para frente numa velocidade mais baixa
-    if (last_vel_MotorL != MAX_VEL)
-      MotorL(MAX_VEL);
-    if (last_vel_MotorR != MAX_VEL)
-      MotorR(MAX_VEL);
+  // Velocidade apropriada para o motor
+  int vel_MotorL = ((MAX_VEL >> distL_value) + (10 * distL_value * distR_value));
+  int vel_MotorR = ((MAX_VEL >> distR_value) + (10 * distL_value * distR_value));
 
-    last_vel_MotorL = MAX_VEL;
-    last_vel_MotorR = MAX_VEL;
-  }
+  if (last_vel_MotorL != vel_MotorL)
+    MotorL(vel_MotorL);
+
+  if (last_vel_MotorR != vel_MotorR)
+    MotorR(vel_MotorR);
+
+  // Última velocidade
+  last_vel_MotorL = vel_MotorL;
+  last_vel_MotorR = vel_MotorR;
 
   // Última detecção
   last_detect_distL = distL_value;
