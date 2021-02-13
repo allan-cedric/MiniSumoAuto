@@ -53,7 +53,7 @@ int last_vel_MotorR = 0;
 int last_detect_distL = 1;
 int last_detect_distR = 1;
 
-// Checa as linha branca do Dohyo
+// Checa a linha branca do Dohyo
 #define LINE_DELAY 200
 #define WHITE_LINE 200
 void check_lines();
