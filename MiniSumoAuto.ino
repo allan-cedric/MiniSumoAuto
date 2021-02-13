@@ -129,6 +129,7 @@ void loop()
         strat_2();
       break;
     default:
+      // other strategies
       break;
     }
   }
