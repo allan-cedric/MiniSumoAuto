@@ -46,16 +46,16 @@ int readDIP();        // read DIP switch / ler chave DIP / leer el interruptor D
 #define MAX_VEL 200
 
 // Variáveis globais para velocidades
-int last_vel_MotorL = 0;
-int last_vel_MotorR = 0;
+int last_vel_MotorL = 1;
+int last_vel_MotorR = 1;
 
 // Variáveis globais para o sensor
-int last_detect_distL = 1;
-int last_detect_distR = 1;
+int last_detect_distL;
+int last_detect_distR;
 
 // Checa a linha branca do Dohyo
 #define LINE_DELAY 200
-#define WHITE_LINE 200
+#define WHITE_LINE 626
 void check_lines();
 
 // Funções de estratégias
@@ -113,24 +113,55 @@ void loop()
     int strat = readDIP();
     switch (strat)
     {
-    case 0:
-      // init_strat()
-      while (digitalRead(microST))
-        strat_0();
-      break;
-    case 1:
-      // init_strat()
-      while (digitalRead(microST))
-        strat_1();
-      break;
-    case 2:
-      // init_strat()
-      while (digitalRead(microST))
-        strat_2();
-      break;
-    default:
-      // other strategies
-      break;
+      case 0:
+        // Cercar (Esquerda)
+        last_detect_distR = 1;
+        last_detect_distL = 0;
+        while (digitalRead(microST))
+          strat_0();
+        break;
+      case 1:
+        // Cercar (Direita)
+        last_detect_distL = 0;
+        last_detect_distR = 1;
+        while (digitalRead(microST))
+          strat_0();
+        break;
+      case 2:
+        // Cercar (Invertido direita)
+        MotorL(-(MAX_VEL));
+        MotorR(-(MAX_VEL - 50));
+        delay(500);
+
+        MotorL(MAX_VEL);
+        MotorR(MAX_VEL - 50);
+        delay(50);
+
+        while (digitalRead(microST))
+          strat_0();
+        break;
+      case 3:
+        // Cercar (Invertido esquerda)
+        MotorL(-(MAX_VEL - 50));
+        MotorR(-(MAX_VEL));
+        delay(500);
+
+        MotorL(MAX_VEL - 50);
+        MotorR(MAX_VEL);
+        delay(50);
+
+        while (digitalRead(microST))
+          strat_0();
+        break;
+      case 15:
+        last_detect_distL = 1;
+        last_detect_distR = 1;
+        while (digitalRead(microST))
+          strat_0();
+        break;
+      default:
+        // other strategies
+        break;
     }
   }
   else
@@ -220,8 +251,8 @@ int readDIP()
 
 void check_lines()
 {
-  int detect_lineL = (analogRead(lineL) < WHITE_LINE);
-  int detect_lineR = (analogRead(lineR) < WHITE_LINE);
+  int detect_lineL = (analogRead(lineL) <= WHITE_LINE);
+  int detect_lineR = (analogRead(lineR) <= WHITE_LINE);
 
   if (detect_lineL)
   {
