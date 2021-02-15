@@ -162,16 +162,16 @@ void loop()
           strat_search_0();
         break;
       case 4:
-        // Variante olhando para esquerda
-        last_detect_distR = 0;
-        last_detect_distL = 1;
+        // Variante olhando para direita
+        last_detect_distL = 0;
+        last_detect_distR = 1;
         while (digitalRead(microST))
           strat_search_0();
         break;
       case 5:
-        // Variante olhando para direita
-        last_detect_distR = 1;
-        last_detect_distL = 0;
+        // Variante olhando para esquerda
+        last_detect_distL = 1;
+        last_detect_distR = 0;
         while (digitalRead(microST))
           strat_search_0();
         break;
