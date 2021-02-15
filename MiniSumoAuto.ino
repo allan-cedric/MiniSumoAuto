@@ -59,9 +59,7 @@ int last_detect_distR;
 void check_lines();
 
 // Funções de estratégias
-void strat_0();
-void strat_1();
-void strat_2();
+void strat_search_0();
 
 void setup()
 {
@@ -115,52 +113,85 @@ void loop()
     {
       case 0:
         // Cercar (Esquerda)
-        last_detect_distR = 1;
+        MotorL(MAX_VEL);
+        MotorR(MAX_VEL/2);
+        delay(500);
+
         last_detect_distL = 0;
+        last_detect_distR = 1;
+
         while (digitalRead(microST))
-          strat_0();
+          strat_search_0();
         break;
       case 1:
         // Cercar (Direita)
-        last_detect_distL = 0;
-        last_detect_distR = 1;
+        MotorL(MAX_VEL/2);
+        MotorR(MAX_VEL);
+        delay(500);
+
+        last_detect_distL = 1;
+        last_detect_distR = 0;
+
         while (digitalRead(microST))
-          strat_0();
+          strat_search_0();
         break;
       case 2:
         // Cercar (Invertido direita)
         MotorL(-(MAX_VEL));
-        MotorR(-(MAX_VEL - 50));
+        MotorR(-(MAX_VEL/2));
         delay(500);
 
         MotorL(MAX_VEL);
-        MotorR(MAX_VEL - 50);
+        MotorR(0);
         delay(50);
 
         while (digitalRead(microST))
-          strat_0();
+          strat_search_0();
         break;
       case 3:
         // Cercar (Invertido esquerda)
-        MotorL(-(MAX_VEL - 50));
+        MotorL(-(MAX_VEL/2));
         MotorR(-(MAX_VEL));
         delay(500);
 
-        MotorL(MAX_VEL - 50);
+        MotorL(0);
         MotorR(MAX_VEL);
         delay(50);
 
         while (digitalRead(microST))
-          strat_0();
+          strat_search_0();
+        break;
+      case 4:
+        // Variante olhando para esquerda
+        last_detect_distR = 0;
+        last_detect_distL = 1;
+        while (digitalRead(microST))
+          strat_search_0();
+        break;
+      case 5:
+        // Variante olhando para direita
+        last_detect_distR = 1;
+        last_detect_distL = 0;
+        while (digitalRead(microST))
+          strat_search_0();
+        break;
+      case 6:
+        // Estratégia
+        break;
+      case 7:
+        // Estratégia
         break;
       case 15:
         last_detect_distL = 1;
         last_detect_distR = 1;
         while (digitalRead(microST))
-          strat_0();
+          strat_search_0();
         break;
       default:
-        // other strategies
+        last_detect_distL = 1;
+        last_detect_distR = 1;
+        while (digitalRead(microST))
+          strat_search_0();
         break;
     }
   }
@@ -304,7 +335,7 @@ void check_lines()
   }
 }
 
-void strat_0()
+void strat_search_0()
 {
   check_lines();
 
@@ -358,14 +389,4 @@ void strat_0()
   // Última detecção
   last_detect_distL = distL_value;
   last_detect_distR = distR_value;
-}
-
-void strat_1()
-{
-  check_lines();
-}
-
-void strat_2()
-{
-  check_lines();
 }
