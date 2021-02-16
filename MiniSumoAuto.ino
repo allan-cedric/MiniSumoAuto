@@ -46,12 +46,12 @@ int readDIP();        // read DIP switch / ler chave DIP / leer el interruptor D
 #define MAX_VEL 200
 
 // Variáveis globais para velocidades
-int last_vel_MotorL = 1;
-int last_vel_MotorR = 1;
+int last_vel_MotorL = 0;
+int last_vel_MotorR = 0;
 
 // Variáveis globais para o sensor
-int last_detect_distL;
-int last_detect_distR;
+int last_detect_distL = 0;
+int last_detect_distR = 0;
 
 // Checa a linha branca do Dohyo
 #define LINE_DELAY 200
@@ -60,6 +60,7 @@ void check_lines();
 
 // Funções de estratégias
 void strat_search_0();
+void strat_search_1();
 
 void setup()
 {
@@ -114,7 +115,7 @@ void loop()
       case 0:
         // Cercar (Esquerda)
         MotorL(MAX_VEL);
-        MotorR(MAX_VEL/2);
+        MotorR(MAX_VEL / 2);
         delay(500);
 
         last_detect_distL = 0;
@@ -125,7 +126,7 @@ void loop()
         break;
       case 1:
         // Cercar (Direita)
-        MotorL(MAX_VEL/2);
+        MotorL(MAX_VEL / 2);
         MotorR(MAX_VEL);
         delay(500);
 
@@ -138,7 +139,7 @@ void loop()
       case 2:
         // Cercar (Invertido direita)
         MotorL(-(MAX_VEL));
-        MotorR(-(MAX_VEL/2));
+        MotorR(-(MAX_VEL / 2));
         delay(500);
 
         MotorL(MAX_VEL);
@@ -150,7 +151,7 @@ void loop()
         break;
       case 3:
         // Cercar (Invertido esquerda)
-        MotorL(-(MAX_VEL/2));
+        MotorL(-(MAX_VEL / 2));
         MotorR(-(MAX_VEL));
         delay(500);
 
@@ -176,10 +177,11 @@ void loop()
           strat_search_0();
         break;
       case 6:
-        // Estratégia
-        break;
-      case 7:
-        // Estratégia
+        // Estratégia (Contribuição do João)
+        last_detect_distL = 0;
+        last_detect_distR = 1;
+        while (digitalRead(microST))
+          strat_search_1();
         break;
       case 15:
         last_detect_distL = 1;
@@ -347,6 +349,62 @@ void strat_search_0()
   {
     distL_value = last_detect_distL;
     distR_value = last_detect_distR;
+  }
+
+  // Armazena a velocidade apropriada para o motores
+  int vel_MotorL, vel_MotorR;
+
+  if (distL_value)
+  {
+    if (distR_value)
+    {
+      vel_MotorL = MAX_VEL + 10;
+      vel_MotorR = MAX_VEL + 10;
+    }
+    else
+    {
+      vel_MotorL = MAX_VEL / 2;
+      vel_MotorR = MAX_VEL;
+    }
+  }
+  else if (distR_value)
+  {
+    vel_MotorL = MAX_VEL;
+    vel_MotorR = MAX_VEL / 2;
+  }
+  else
+  {
+    vel_MotorL = MAX_VEL - 10;
+    vel_MotorR = MAX_VEL - 10;
+  }
+
+  if (last_vel_MotorL != vel_MotorL)
+    MotorL(vel_MotorL);
+
+  if (last_vel_MotorR != vel_MotorR)
+    MotorR(vel_MotorR);
+
+  // Última velocidade
+  last_vel_MotorL = vel_MotorL;
+  last_vel_MotorR = vel_MotorR;
+
+  // Última detecção
+  last_detect_distL = distL_value;
+  last_detect_distR = distR_value;
+}
+
+void strat_search_1()
+{
+  check_lines();
+
+  // Leitura do sensor
+  int distL_value = digitalRead(distL);
+  int distR_value = digitalRead(distR);
+
+  if (!distL_value && !distR_value)
+  {
+    distL_value = 0;
+    distR_value = 1;
   }
 
   // Armazena a velocidade apropriada para o motores
