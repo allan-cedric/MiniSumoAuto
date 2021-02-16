@@ -43,7 +43,7 @@ int readDIP();        // read DIP switch / ler chave DIP / leer el interruptor D
 /*******FUNCTIONS - END*******/
 
 // Velocidade máxima
-#define MAX_VEL 200
+#define MAX_VEL 220
 
 // Variáveis globais para velocidades
 int last_vel_MotorL = 0;
@@ -54,7 +54,7 @@ int last_detect_distL = 0;
 int last_detect_distR = 0;
 
 // Checa a linha branca do Dohyo
-#define LINE_DELAY 200
+#define LINE_DELAY 500
 #define WHITE_LINE 626
 void check_lines();
 
@@ -115,7 +115,7 @@ void loop()
       case 0:
         // Cercar (Esquerda)
         MotorL(MAX_VEL);
-        MotorR(MAX_VEL / 2);
+        MotorR(MAX_VEL - 30);
         delay(500);
 
         last_detect_distL = 0;
@@ -126,7 +126,7 @@ void loop()
         break;
       case 1:
         // Cercar (Direita)
-        MotorL(MAX_VEL / 2);
+        MotorL(MAX_VEL - 30);
         MotorR(MAX_VEL);
         delay(500);
 
@@ -139,7 +139,7 @@ void loop()
       case 2:
         // Cercar (Invertido direita)
         MotorL(-(MAX_VEL));
-        MotorR(-(MAX_VEL / 2));
+        MotorR(-(MAX_VEL - 30));
         delay(500);
 
         MotorL(MAX_VEL);
@@ -151,7 +151,7 @@ void loop()
         break;
       case 3:
         // Cercar (Invertido esquerda)
-        MotorL(-(MAX_VEL / 2));
+        MotorL(-(MAX_VEL - 30));
         MotorR(-(MAX_VEL));
         delay(500);
 
@@ -292,48 +292,48 @@ void check_lines()
     if (detect_lineR)
     {
       // Vai para trás por um certo tempo
-      MotorL(-(MAX_VEL - 10));
-      MotorR(-(MAX_VEL - 10));
+      MotorL(-(MAX_VEL));
+      MotorR(-(MAX_VEL));
       delay(LINE_DELAY);
 
       // Gira por um certo tempo
       MotorL(0);
-      MotorR(MAX_VEL - 10);
-      delay(LINE_DELAY / 2);
+      MotorR(MAX_VEL);
+      delay(LINE_DELAY - 50);
 
       last_vel_MotorL = 0;
-      last_vel_MotorR = MAX_VEL - 10;
+      last_vel_MotorR = MAX_VEL;
     }
     else
     {
       // Vai para trás por um certo tempo
-      MotorL(-(MAX_VEL - 10));
-      MotorR(-(MAX_VEL - 10));
+      MotorL(-(MAX_VEL));
+      MotorR(-(MAX_VEL));
       delay(LINE_DELAY / 2);
 
       // Gira por um certo tempo
-      MotorL(MAX_VEL - 10);
+      MotorL(MAX_VEL);
       MotorR(0);
-      delay(LINE_DELAY / 4);
+      delay(LINE_DELAY - 150);
 
-      last_vel_MotorL = MAX_VEL - 10;
+      last_vel_MotorL = MAX_VEL;
       last_vel_MotorR = 0;
     }
   }
   else if (detect_lineR)
   {
     // Vai para trás por um certo tempo
-    MotorL(-(MAX_VEL - 10));
-    MotorR(-(MAX_VEL - 10));
+    MotorL(-(MAX_VEL));
+    MotorR(-(MAX_VEL));
     delay(LINE_DELAY / 2);
 
     // Gira por um certo tempo
     MotorL(0);
-    MotorR(MAX_VEL - 10);
-    delay(LINE_DELAY / 4);
+    MotorR(MAX_VEL);
+    delay(LINE_DELAY - 150);
 
     last_vel_MotorL = 0;
-    last_vel_MotorR = MAX_VEL - 10;
+    last_vel_MotorR = MAX_VEL;
   }
 }
 
@@ -358,8 +358,8 @@ void strat_search_0()
   {
     if (distR_value)
     {
-      vel_MotorL = MAX_VEL + 10;
-      vel_MotorR = MAX_VEL + 10;
+      vel_MotorL = MAX_VEL + 30;
+      vel_MotorR = MAX_VEL + 30;
     }
     else
     {
