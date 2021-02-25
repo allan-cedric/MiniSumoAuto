@@ -115,7 +115,7 @@ void loop()
       case 0:
         // Cercar (Esquerda)
         MotorL(MAX_VEL);
-        MotorR(MAX_VEL - 30);
+        MotorR(MAX_VEL - 100);
         delay(500);
 
         last_detect_distL = 0;
@@ -126,7 +126,7 @@ void loop()
         break;
       case 1:
         // Cercar (Direita)
-        MotorL(MAX_VEL - 30);
+        MotorL(MAX_VEL - 100);
         MotorR(MAX_VEL);
         delay(500);
 
@@ -139,25 +139,25 @@ void loop()
       case 2:
         // Cercar (Invertido direita)
         MotorL(-(MAX_VEL));
-        MotorR(-(MAX_VEL - 30));
+        MotorR(-(MAX_VEL - 100));
         delay(500);
 
         MotorL(MAX_VEL);
         MotorR(0);
-        delay(50);
+        delay(100);
 
         while (digitalRead(microST))
           strat_search_0();
         break;
       case 3:
         // Cercar (Invertido esquerda)
-        MotorL(-(MAX_VEL - 30));
+        MotorL(-(MAX_VEL - 100));
         MotorR(-(MAX_VEL));
         delay(500);
 
         MotorL(0);
         MotorR(MAX_VEL);
-        delay(50);
+        delay(100);
 
         while (digitalRead(microST))
           strat_search_0();
@@ -299,7 +299,7 @@ void check_lines()
       // Gira por um certo tempo
       MotorL(0);
       MotorR(MAX_VEL);
-      delay(LINE_DELAY - 50);
+      delay(LINE_DELAY - 200);
 
       last_vel_MotorL = 0;
       last_vel_MotorR = MAX_VEL;
@@ -314,7 +314,7 @@ void check_lines()
       // Gira por um certo tempo
       MotorL(MAX_VEL);
       MotorR(0);
-      delay(LINE_DELAY - 150);
+      delay(LINE_DELAY - 300);
 
       last_vel_MotorL = MAX_VEL;
       last_vel_MotorR = 0;
@@ -330,7 +330,7 @@ void check_lines()
     // Gira por um certo tempo
     MotorL(0);
     MotorR(MAX_VEL);
-    delay(LINE_DELAY - 150);
+    delay(LINE_DELAY - 300);
 
     last_vel_MotorL = 0;
     last_vel_MotorR = MAX_VEL;
@@ -358,8 +358,8 @@ void strat_search_0()
   {
     if (distR_value)
     {
-      vel_MotorL = MAX_VEL + 30;
-      vel_MotorR = MAX_VEL + 30;
+      vel_MotorL = MAX_VEL + 10;
+      vel_MotorR = MAX_VEL + 10;
     }
     else
     {
