@@ -184,14 +184,14 @@ void loop()
           strat_search_1();
         break;
       case 15:
-        last_detect_distL = 1;
-        last_detect_distR = 1;
+        last_detect_distL = 0;
+        last_detect_distR = 0;
         while (digitalRead(microST))
           strat_search_0();
         break;
       default:
-        last_detect_distL = 1;
-        last_detect_distR = 1;
+        last_detect_distL = 0;
+        last_detect_distR = 0;
         while (digitalRead(microST))
           strat_search_0();
         break;
@@ -299,7 +299,7 @@ void check_lines()
       // Gira por um certo tempo
       MotorL(0);
       MotorR(MAX_VEL);
-      delay(LINE_DELAY - 200);
+      delay(LINE_DELAY - 300);
 
       last_vel_MotorL = 0;
       last_vel_MotorR = MAX_VEL;
@@ -314,7 +314,7 @@ void check_lines()
       // Gira por um certo tempo
       MotorL(MAX_VEL);
       MotorR(0);
-      delay(LINE_DELAY - 300);
+      delay(LINE_DELAY - 400);
 
       last_vel_MotorL = MAX_VEL;
       last_vel_MotorR = 0;
@@ -330,7 +330,7 @@ void check_lines()
     // Gira por um certo tempo
     MotorL(0);
     MotorR(MAX_VEL);
-    delay(LINE_DELAY - 300);
+    delay(LINE_DELAY - 400);
 
     last_vel_MotorL = 0;
     last_vel_MotorR = MAX_VEL;
@@ -374,8 +374,8 @@ void strat_search_0()
   }
   else
   {
-    vel_MotorL = MAX_VEL - 10;
-    vel_MotorR = MAX_VEL - 10;
+    vel_MotorL = MAX_VEL - 20;
+    vel_MotorR = MAX_VEL - 20;
   }
 
   if (last_vel_MotorL != vel_MotorL)
